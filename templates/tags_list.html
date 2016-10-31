@@ -1,0 +1,15 @@
+{% extends 'layout.html' %}
+{% block content %}
+<div class="entry-list">
+    <h2>Tags</h2><br>
+    {% if tags %}
+        <ul>
+            {% for tag in tags %}
+                    <li><a href="{{ url_for('tag', name=tag.name) }}">{{ tag.name }}</a></li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>There aren't any tags yet!</p>
+    {% endif %}
+</div>
+{% endblock %}

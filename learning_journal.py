@@ -86,8 +86,12 @@ def list():
     return render_template('index.html', entries=entries)
 
 
+@app.route('/tag')
 @app.route('/tag/<name>')
-def tag(name):
+def tag(name=None):
+    if name is None:
+        tags = models.Tag.select().order_by('name')
+        return render_template('tags_list.html', tags=tags)
     tag = models.Tag.get(models.Tag.name == name)
     entries = (models.Entry
                .select()
