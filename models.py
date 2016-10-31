@@ -1,3 +1,5 @@
+import re
+
 from peewee import *
 from flask_bcrypt import generate_password_hash
 from flask_login import UserMixin
@@ -8,6 +10,7 @@ DATABASE = SqliteDatabase('journal.db')
 
 class Entry(Model):
     title = CharField()
+    slug = CharField(unique=True)
     date = DateField()
     time = IntegerField(default=0)
     learned = TextField()

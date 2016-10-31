@@ -23,8 +23,8 @@
 {% if current_user.is_authenticated %}
     <div class="edit">
         <p>
-            <a href="{{ url_for('entry', entry_id=entry.id) }}">Edit Entry</a>
-            <a href="{{ url_for('delete', entry_id=entry.id) }}">Delete Entry</a>
+            <a href="{{ url_for('entry', slug=entry.slug) }}">Edit Entry</a>
+            <a href="{{ url_for('delete', slug=entry.slug) }}">Delete Entry</a>
         </p>
     </div>
 {% endif %}

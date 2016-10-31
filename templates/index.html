@@ -1,11 +1,19 @@
 {% extends 'layout.html' %}
 {% block content %}
 <div class="entry-list">
-    {% for entry in entries %}
-        <article>
-            <h2><a href="{{ url_for('details', entry_id=entry.id) }}">{{ entry.title }}</a></h2>
-            <time>{{ entry.date }}</time>
-        </article>
-    {% endfor %}
+    {% if entries %}
+        {% for entry in entries %}
+            <article>
+                <h2><a href="{{ url_for('details', slug=entry.slug) }}">{{ entry.title }}</a></h2>
+                <time>{{ entry.date }}</time>
+            </article>
+        {% endfor %}
+    {% else %}
+        {% if current_user.is_authenticated %}
+            <p>Hmmm...there's nothing here! <a href="{{ url_for('entry') }}">Add an entry</a>?</p>
+        {% else %}
+            <p>Hmmm...there's nothing here! Why don't you <a href="{{ url_for('login') }}">login</a> or <a href="{{ url_for('register') }}">register</a> and add some entries!</p>
+        {% endif %}
+    {% endif %}
 </div>
 {% endblock %}

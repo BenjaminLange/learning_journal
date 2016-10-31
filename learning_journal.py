@@ -1,4 +1,5 @@
 import os
+import re
 
 from flask import (Flask, render_template, redirect, url_for,
                    send_from_directory, g, flash)
@@ -86,14 +87,15 @@ def list():
 
 
 @app.route('/entry', methods=('GET', 'POST'))
-@app.route('/entry/<int:entry_id>', methods=('GET', 'POST'))
+@app.route('/entry/<slug>', methods=('GET', 'POST'))
 @login_required
-def entry(entry_id=None):
-    if entry_id is None:
+def entry(slug=None):
+    if slug is None:
         form = forms.EntryForm()
         if form.validate_on_submit():
             models.Entry.create(
                 title=form.title.data,
+                slug=slugify(form.title.data),
                 date=form.date.data,
                 time=form.time.data,
                 learned=form.learned.data,
@@ -103,38 +105,39 @@ def entry(entry_id=None):
         return render_template('new.html', form=form)
     else:
         try:
-            entry = models.Entry.get(models.Entry.id == entry_id)
+            entry = models.Entry.get(models.Entry.slug == slug)
         except models.DoesNotExist:
             return render_template('404.html'), 404
         else:
             form = forms.EntryForm(obj=entry)
             if form.validate_on_submit():
                 entry.title = form.title.data
+                entry.slug = slugify(form.title.data)
                 entry.time = form.time.data
                 entry.date = form.date.data
                 entry.learned = form.learned.data
                 entry.resources = form.resources.data
                 entry.save()
-                return redirect(url_for('details', entry_id=entry.id))
+                return redirect(url_for('details', slug=entry.slug))
             return render_template('edit.html', form=form)
 
 
 @app.errorhandler(404)
-@app.route('/details/<int:entry_id>')
-def details(entry_id):
+@app.route('/details/<slug>')
+def details(slug):
     try:
-        entry = models.Entry.get(models.Entry.id == entry_id)
+        entry = models.Entry.get(models.Entry.slug == slug)
     except models.DoesNotExist:
         return render_template('404.html'), 404
     else:
         return render_template('detail.html', entry=entry)
 
 
-@app.route('/entry/delete/<int:entry_id>')
+@app.route('/entry/delete/<slug>')
 @login_required
 def delete(entry_id):
     try:
-        entry = models.Entry.get(models.Entry.id == entry_id)
+        entry = models.Entry.get(models.Entry.slug == slug)
     except models.DoesNotExist:
         return render_template('404.html'), 404
     else:
@@ -147,6 +150,19 @@ def favicon():
     """Route/view for blank favicon to avoid 404 error when loading each page"""
     return send_from_directory(os.path.join(app.root_path, 'static'),
                                'favicon.ico', mimetype='image/vnd.microsoft.icon')
+
+
+def slugify(title, counter=None):
+    if counter:
+        slug = re.sub('[^\w]+', '-', title.lower())
+        slug = "{}-{}".format(slug, counter)
+    else:
+        counter = 0
+        slug = re.sub('[^\w]+', '-', title.lower())
+    entries = models.Entry.select().where(models.Entry.slug == slug).count()
+    if entries > 0:
+        return slugify(title, counter + 1)
+    return slug
 
 
 if __name__ == '__main__':
