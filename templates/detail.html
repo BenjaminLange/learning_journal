@@ -17,6 +17,16 @@
                 <h3>Resources to Remember:</h3>
                 <p>{{ entry.resources }}</p>
             </div>
+            {% if tags %}
+                <div class="entry">
+                    <h3>Tags:</h3>
+                    <ul>
+                        {% for tag in tags %}
+                            <li><a href="{{ url_for('tag', name=tag.name) }}">{{ tag.name }}</a></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
         </article>
     </div>
 </div>

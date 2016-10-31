@@ -10,6 +10,7 @@
         {{ render_field(form.time) }}
         {{ render_field(form.learned) }}
         {{ render_field(form.resources) }}
+        {{ render_field(form.tags) }}
         <input type="submit" value="Update Entry" class="button">
         <a href="{{ url_for('list') }}" class="button button-secondary">Cancel</a>
     </form>

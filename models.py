@@ -1,5 +1,3 @@
-import re
-
 from peewee import *
 from flask_bcrypt import generate_password_hash
 from flask_login import UserMixin
@@ -15,6 +13,21 @@ class Entry(Model):
     time = IntegerField(default=0)
     learned = TextField()
     resources = TextField()
+
+    class Meta:
+        database = DATABASE
+
+
+class Tag(Model):
+    name = CharField(unique=True)
+
+    class Meta:
+        database = DATABASE
+
+
+class EntryTag(Model):
+    entry = ForeignKeyField(Entry)
+    tag = ForeignKeyField(Tag)
 
     class Meta:
         database = DATABASE
@@ -41,5 +54,5 @@ class User(UserMixin, Model):
 
 def initialize():
     DATABASE.connect()
-    DATABASE.create_tables([Entry, User], safe=True)
+    DATABASE.create_tables([Entry, Tag, EntryTag, User], safe=True)
     DATABASE.close()

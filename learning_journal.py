@@ -2,7 +2,7 @@ import os
 import re
 
 from flask import (Flask, render_template, redirect, url_for,
-                   send_from_directory, g, flash)
+                   send_from_directory, g, flash, request)
 from flask_login import (LoginManager, login_user, logout_user,
                          login_required, current_user)
 from flask_bcrypt import check_password_hash
@@ -75,7 +75,7 @@ def register():
             return render_template('register.html', form=form)
         else:
             flash("You've been registered!", "success")
-            return redirect(url_for('login'))
+            return redirect(url_for('list'))
     return render_template('register.html', form=form)
 
 
@@ -86,6 +86,18 @@ def list():
     return render_template('index.html', entries=entries)
 
 
+@app.route('/tag/<name>')
+def tag(name):
+    tag = models.Tag.get(models.Tag.name == name)
+    entries = (models.Entry
+               .select()
+               .join(models.EntryTag)
+               .join(models.Tag)
+               .where(models.EntryTag.tag == tag)
+               )
+    return render_template('tags.html', tag=tag, entries=entries)
+
+
 @app.route('/entry', methods=('GET', 'POST'))
 @app.route('/entry/<slug>', methods=('GET', 'POST'))
 @login_required
@@ -93,7 +105,7 @@ def entry(slug=None):
     if slug is None:
         form = forms.EntryForm()
         if form.validate_on_submit():
-            models.Entry.create(
+            entry = models.Entry.create(
                 title=form.title.data,
                 slug=slugify(form.title.data),
                 date=form.date.data,
@@ -101,6 +113,23 @@ def entry(slug=None):
                 learned=form.learned.data,
                 resources=form.resources.data
             )
+            tags = form.tags.data.split(',')
+            for form_tag in tags:
+                form_tag = form_tag.strip()
+                try:
+                    tag = models.Tag.get(models.Tag.name == form_tag)
+                except models.DoesNotExist:
+                    tag = models.Tag.create(
+                        name=form_tag
+                    )
+                else:
+                    tag.Name = form_tag
+                    tag.save()
+                finally:
+                    models.EntryTag.create(
+                        tag=tag,
+                        entry=entry
+                    )
             return redirect(url_for('list'))
         return render_template('new.html', form=form)
     else:
@@ -110,6 +139,20 @@ def entry(slug=None):
             return render_template('404.html'), 404
         else:
             form = forms.EntryForm(obj=entry)
+            tags = (models.Tag
+                    .select(models.Tag)
+                    .join(models.EntryTag)
+                    .join(models.Entry)
+                    .where(models.EntryTag.entry == entry)
+                    .group_by(models.Tag)
+            )
+            tags_string = ''
+            for tag in tags:
+                tags_string = '{}, {}'.format(tags_string, tag.name)
+            if ',' in tags_string:
+                tags_string = tags_string[2:]
+            if request.method == 'GET':
+                form.tags.data = tags_string
             if form.validate_on_submit():
                 entry.title = form.title.data
                 entry.slug = slugify(form.title.data)
@@ -118,6 +161,25 @@ def entry(slug=None):
                 entry.learned = form.learned.data
                 entry.resources = form.resources.data
                 entry.save()
+
+                query = models.EntryTag.delete().where(models.EntryTag.entry == entry)
+                query.execute()
+
+                tags = form.tags.data.split(',')
+                for form_tag in tags:
+                    form_tag = form_tag.strip()
+                    try:
+                        tag = models.Tag.get(models.Tag.name == form_tag)
+                    except models.DoesNotExist:
+                        tag = models.Tag.create(
+                            name=form_tag
+                        )
+                    finally:
+                        models.EntryTag.create(
+                            tag=tag,
+                            entry=entry
+                        )
+
                 return redirect(url_for('details', slug=entry.slug))
             return render_template('edit.html', form=form)
 
@@ -127,10 +189,17 @@ def entry(slug=None):
 def details(slug):
     try:
         entry = models.Entry.get(models.Entry.slug == slug)
+        tags = (models.Tag
+                .select(models.Tag)
+                .join(models.EntryTag)
+                .join(models.Entry)
+                .where(models.EntryTag.entry == entry)
+                .group_by(models.Tag)
+                )
     except models.DoesNotExist:
         return render_template('404.html'), 404
     else:
-        return render_template('detail.html', entry=entry)
+        return render_template('detail.html', entry=entry, tags=tags)
 
 
 @app.route('/entry/delete/<slug>')

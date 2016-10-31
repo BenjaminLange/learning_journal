@@ -1,0 +1,14 @@
+{% extends 'layout.html' %}
+{% block content %}
+<div class="entry-list">
+    <h2>Entries tagged as {{ tag.name }}</h2><br>
+    {% if entries %}
+        {% for entry in entries %}
+            <article>
+                <h2><a href="{{ url_for('details', slug=entry.slug) }}">{{ entry.title }}</a></h2>
+                <time>{{ entry.date }}</time>
+            </article>
+        {% endfor %}
+    {% endif %}
+</div>
+{% endblock %}

@@ -10,6 +10,7 @@ class EntryForm(FlaskForm):
     time = IntegerField(validators=[DataRequired()])
     learned = TextAreaField()
     resources = TextAreaField()
+    tags = StringField()
 
 
 class LoginForm(FlaskForm):

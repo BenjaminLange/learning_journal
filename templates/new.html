@@ -21,6 +21,9 @@
             <div>
                 {{ render_field(form.resources) }}
             </div>
+            <div>
+                {{ render_field(form.tags) }}
+            </div>
         </div>
         <input type="submit" value="Publish Entry" class="button">
         <a href="{{ url_for('list') }}" class="button button-secondary">Cancel</a>
