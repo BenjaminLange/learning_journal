@@ -135,7 +135,7 @@ def details(slug):
 
 @app.route('/entry/delete/<slug>')
 @login_required
-def delete(entry_id):
+def delete(slug):
     try:
         entry = models.Entry.get(models.Entry.slug == slug)
     except models.DoesNotExist:
