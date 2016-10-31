@@ -166,8 +166,7 @@ def entry(slug=None):
                 entry.resources = form.resources.data
                 entry.save()
 
-                query = models.EntryTag.delete().where(models.EntryTag.entry == entry)
-                query.execute()
+                delete_entry_tags(entry)
 
                 tags = form.tags.data.split(',')
                 for form_tag in tags:
@@ -214,6 +213,7 @@ def delete(slug):
     except models.DoesNotExist:
         return render_template('404.html'), 404
     else:
+        delete_entry_tags(entry)
         entry.delete_instance()
         return redirect(url_for('list'))
 
@@ -223,6 +223,19 @@ def favicon():
     """Route/view for blank favicon to avoid 404 error when loading each page"""
     return send_from_directory(os.path.join(app.root_path, 'static'),
                                'favicon.ico', mimetype='image/vnd.microsoft.icon')
+
+
+def delete_entry_tags(entry):
+    query = models.EntryTag.delete().where(models.EntryTag.entry == entry)
+    query.execute()
+    delete_unused_tags()
+
+
+def delete_unused_tags():
+    tags = models.Tag.select()
+    for tag in tags:
+        if not models.EntryTag.select().where(models.EntryTag.tag == tag).count():
+            tag.delete_instance()
 
 
 def slugify(title, counter=None):
