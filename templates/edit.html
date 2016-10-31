@@ -1,0 +1,17 @@
+{% extends 'layout.html' %}
+{% from 'macros.html' import render_field %}
+{% block content %}
+<div class="edit-entry">
+    <h2>Edit Entry</h2>
+    <form method="post">
+        {{ form.hidden_tag() }}
+        {{ render_field(form.title) }}
+        {{ render_field(form.date) }}
+        {{ render_field(form.time) }}
+        {{ render_field(form.learned) }}
+        {{ render_field(form.resources) }}
+        <input type="submit" value="Update Entry" class="button">
+        <a href="{{ url_for('list') }}" class="button button-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

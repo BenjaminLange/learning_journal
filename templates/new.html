@@ -1,0 +1,29 @@
+{% extends 'layout.html' %}
+{% from 'macros.html' import render_field %}
+{% block content %}
+<div class="new-entry">
+    <h2>New Entry</h2>
+    <form method="post">
+        {{ form.hidden_tag() }}
+        <div class="row">
+            <div>
+                {{ render_field(form.title) }}
+            </div>
+            <div>
+                {{ render_field(form.date) }}
+            </div>
+            <div>
+                {{ render_field(form.time) }}
+            </div>
+            <div>
+                {{ render_field(form.learned) }}
+            </div>
+            <div>
+                {{ render_field(form.resources) }}
+            </div>
+        </div>
+        <input type="submit" value="Publish Entry" class="button">
+        <a href="{{ url_for('list') }}" class="button button-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

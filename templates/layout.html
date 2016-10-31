@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>MyJournal</title>
+        <link href="https://fonts.googleapis.com/css?family=Cousine:400" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/css?family=Work+Sans:600" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/normalize.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/site.css') }}">
+    </head>
+    <body>
+        <header>
+            <div class="container">
+                <div class="site-header">
+                    <a class="logo" href="{{ url_for('list') }}"><i class="material-icons">library_books</i></a>
+                    {% if current_user.is_authenticated %}
+                        <a class="button icon-right" href="{{ url_for('entry') }}"><span>New Entry</span> <i class="material-icons">add</i></a>
+                        <a class="button icon-right" href="{{ url_for('logout') }}"><span>Logout</span> <i class="material-icons">lock</i></a>
+                    {% else %}
+                        <a class="button icon-right" href="{{ url_for('register') }}"><span>Register</span> <i class="material-icons">assignment</i></a>
+                        <a class="button icon-right" href="{{ url_for('login') }}"><span>Login</span> <i class="material-icons">lock_open</i></a>
+                    {% endif %}
+                </div>
+            </div>
+        </header>
+
+        {% with messages = get_flashed_messages(with_categories=True) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="notification {{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <section>
+            {% block content %}
+            {% endblock %}
+        </section>
+        <footer>
+            <div>
+                <p>&copy; MyJournal</p>
+            </div>
+        </footer>
+    </body>
+</html>

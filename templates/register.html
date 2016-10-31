@@ -1,0 +1,15 @@
+{% extends 'layout.html' %}
+{% from 'macros.html' import render_field %}
+{% block content %}
+<div class="register">
+    <h2>Register</h2>
+    <form method="post">
+        {{ form.hidden_tag() }}
+        {{ render_field(form.email) }}
+        {{ render_field(form.password) }}
+        {{ render_field(form.password2) }}
+        <input type="submit" value="Register" class="button">
+        <a href="{{ url_for('list') }}" class="button button-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

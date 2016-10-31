@@ -1,0 +1,31 @@
+{% extends 'layout.html' %}
+{% block content %}
+<div class="container">
+    <div class="entry-list single">
+        <article>
+            <h1>{{ entry.title }}</h1>
+            <time>{{ entry.date }}</time>
+            <div class="entry">
+                <h3>Time Spent: </h3>
+                <p>{{ entry.time }}</p>
+            </div>
+            <div class="entry">
+                <h3>What I Learned:</h3>
+                <p>{{ entry.learned }}</p>
+            </div>
+            <div class="entry">
+                <h3>Resources to Remember:</h3>
+                <p>{{ entry.resources }}</p>
+            </div>
+        </article>
+    </div>
+</div>
+{% if current_user.is_authenticated %}
+    <div class="edit">
+        <p>
+            <a href="{{ url_for('entry', entry_id=entry.id) }}">Edit Entry</a>
+            <a href="{{ url_for('delete', entry_id=entry.id) }}">Delete Entry</a>
+        </p>
+    </div>
+{% endif %}
+{% endblock %}
