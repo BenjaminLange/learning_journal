@@ -106,6 +106,11 @@ def tag(name=None):
 @app.route('/entry/<slug>', methods=('GET', 'POST'))
 @login_required
 def entry(slug=None):
+    """Display entry form for editing an entry or creating a new entry
+       If no slug is passed in, the new entry template is rendered.
+       If a slug is passed in, the edit entry template is rendered.
+       Both templates share EntryForm
+    """
     if slug is None:
         form = forms.EntryForm()
         if form.validate_on_submit():
@@ -226,12 +231,14 @@ def favicon():
 
 
 def delete_entry_tags(entry):
+    """Delete all tags for an entry and any unused tags"""
     query = models.EntryTag.delete().where(models.EntryTag.entry == entry)
     query.execute()
     delete_unused_tags()
 
 
 def delete_unused_tags():
+    """Removes unused tags in order to keep things tidy"""
     tags = models.Tag.select()
     for tag in tags:
         if not models.EntryTag.select().where(models.EntryTag.tag == tag).count():
@@ -239,6 +246,9 @@ def delete_unused_tags():
 
 
 def slugify(title, counter=None):
+    """Creates a URL slug based on a title
+       If a slug already exists, add -1 to the title, then -2 and so on
+    """
     if counter:
         slug = re.sub('[^\w]+', '-', title.lower())
         slug = "{}-{}".format(slug, counter)

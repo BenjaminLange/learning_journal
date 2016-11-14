@@ -1,0 +1,1 @@
+$(".notification.success").delay(3200).fadeOut(750);
